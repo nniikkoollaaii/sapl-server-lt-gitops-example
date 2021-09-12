@@ -1,0 +1,5 @@
+policy "policy_C"
+permit
+    resource == "server1"
+where
+    "WILLI" == subject;
