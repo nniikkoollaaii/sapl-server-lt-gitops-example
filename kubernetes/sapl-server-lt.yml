@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sapl-server-lt
+spec:
+  type: ClusterIP
+  selector:
+    app: sapl-server-lt
+  ports:
+    - protocol: TCP
+      name: http
+      targetPort: 8080
+      port: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sapl-server-lt
+  labels:
+    app: sapl-server-lt
+spec:
+  selector:
+    matchLabels:
+      app: sapl-server-lt
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sapl-server-lt
+    spec:
+      volumes:
+        - name: policies
+          emptyDir: {}
+      containers:
+        - name: git-sync
+          image: k8s.gcr.io/git-sync/git-sync:v3.2.2
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /tmp/git
+              name: policies
+          env:
+            - name: "GIT_SYNC_REPO"
+              value: "https://github.com/nniikkoollaaii/sapl-server-lt-gitops-example.git"
+            - name: "GIT_SYNC_BRANCH"
+              value: "main"
+            - name: "GIT_SYNC_DEST"
+              value: "policies"
+            - name: "GIT_SYNC_WAIT"
+              value: "10"
+            - name: "GIT_SYNC_MAX_SYNC_FAILURES"
+              value: "-1"
+        - name: sapl-server-lt
+          image: ghcr.io/heutelbeck/sapl-server-lt:2.0.0-snapshot
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /pdp/data
+              name: policies
+          env:
+            - name: "IO_SAPL_PDP_EMBEDDED_CONFIG_PATH"
+              value: "/pdp/data/policies/src/main/resources/policies"
+            - name: "IO_SAPL_PDP_EMBEDDED_POLICIES_PATH"
+              value: "/pdp/data/policies/src/main/resources/policies"
+          ports:
+            - containerPort: 8080
+              name: http
