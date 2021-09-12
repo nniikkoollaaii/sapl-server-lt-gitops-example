@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import io.sapl.api.pdp.AuthorizationSubscription;
 import io.sapl.test.SaplTestFixture;
-import io.sapl.test.pdp.SaplIntegrationTestFixture;
+import io.sapl.test.integration.SaplIntegrationTestFixture;
 
 class SimplePDPTest {
 
