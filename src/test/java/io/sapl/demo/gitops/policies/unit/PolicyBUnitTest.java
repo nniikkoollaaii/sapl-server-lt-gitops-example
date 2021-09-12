@@ -32,7 +32,7 @@ public class PolicyBUnitTest {
 
 		fixture.constructTestCase()
 			.when(AuthorizationSubscription.of("WILLI", "write", "foo"))
-			.expectPermit()
+			.expectDeny()
 			.verify();
 			
 	}
